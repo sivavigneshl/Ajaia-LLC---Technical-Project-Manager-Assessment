@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corrigan Peak Logistics — DET Normalization & Audit Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 2rem 1.5rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .badge-ajaia {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-blue);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .meta-candidate {
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .meta-candidate strong { color: var(--text-main); }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .kpi-total::before { background: var(--accent-blue); }
+    .kpi-clean::before { background: var(--accent-green); }
+    .kpi-flagged::before { background: var(--accent-amber); }
+    .kpi-test::before { background: var(--accent-purple); }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0.25rem 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background: #182234;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .badge-pass {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .badge-flagged {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .tag-event {
+      display: inline-block;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    /* Audit Notice */
+    .audit-box {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 4px solid var(--accent-amber);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 1rem;
+    }
+
+    .audit-box h4 {
+      color: var(--accent-amber);
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .audit-box p {
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .audit-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Event distribution bars */
+    .dist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .dist-item {
+      background: #182234;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+
+    .dist-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .dist-bar-bg {
+      background: #0f172a;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dist-bar-fill {
+      height: 100%;
+      background: var(--accent-blue);
+      border-radius: 4px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent-blue); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <a class="badge-ajaia" href="https://ajaia.ai" target="_blank">Ajaia Engagement &bull; Corrigan Peak Logistics</a>
+        <h1>Dispatch Exception Triage (DET) — Ingestion Console</h1>
+        <p class="subtitle">Material 3 Normalization, EDI Schema Validation, and Anomaly Audit</p>
+      </div>
+      <div class="meta-candidate">
+        <div>Candidate: <strong>SivaVignesh L</strong></div>
+        <div>Target Go-Live: <strong>September 8, 2026</strong></div>
+        <div>Engine: <code>clean_exceptions.py</code> (Python 3.13)</div>
+      </div>
+    </header>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-total">
+        <div class="kpi-label">Ingested Exceptions</div>
+        <div class="kpi-value" style="color: var(--accent-blue);">5</div>
+        <div class="kpi-sub">Source: FreightWorks EDI Export</div>
+      </div>
+
+      <div class="kpi-card kpi-clean">
+        <div class="kpi-label">Normalized & Validated</div>
+        <div class="kpi-value" style="color: var(--accent-green);">4</div>
+        <div class="kpi-sub">80% Clean Dispatch Ready</div>
+      </div>
+
+      <div class="kpi-card kpi-flagged">
+        <div class="kpi-label">Audit Flagged</div>
+        <div class="kpi-value" style="color: var(--accent-amber);">1</div>
+        <div class="kpi-sub">Missing Carrier Foreign Key</div>
+      </div>
+
+      <div class="kpi-card kpi-test">
+        <div class="kpi-label">Automated Tests</div>
+        <div class="kpi-value" style="color: var(--accent-purple);">6 / 6</div>
+        <div class="kpi-sub">100% Pass in 0.051s</div>
+      </div>
+    </div>
+
+    <!-- Event Distribution -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Summary Count by Event Type</div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Deterministic Aggregations</span>
+      </div>
+      <div class="dist-grid">
+        <div class="dist-item">
+          <div class="dist-header">
+            <span><strong>missed_pickup</strong></span>
+            <span>2 records (40%)</span>
+          </div>
+          <div class="dist-bar-bg">
+            <div class="dist-bar-fill" style="width: 40%; background: #38bdf8;"></div>
+          </div>
+        </div>
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span><strong>doc_mismatch</strong></span>
+            <span>2 records (40%)</span>
+          </div>
+          <div class="dist-bar-bg">
+            <div class="dist-bar-fill" style="width: 40%; background: #c084fc;"></div>
+          </div>
+        </div>
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span><strong>carrier_substitution</strong></span>
+            <span>1 record (20%)</span>
+          </div>
+          <div class="dist-bar-bg">
+            <div class="dist-bar-fill" style="width: 20%; background: #34d399;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Normalized Records Table -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Normalized Exception Dataset</div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Standardized to ISO-8601 UTC & Canonical SCAC</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Exception ID</th>
+              <th>Terminal</th>
+              <th>Event Type</th>
+              <th>Carrier Code</th>
+              <th>Standardized Timestamp (UTC)</th>
+              <th>Validation Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CPX-88213</strong></td>
+              <td>Terminal 3</td>
+              <td><span class="tag-event">missed_pickup</span></td>
+              <td>SWFT</td>
+              <td>2026-08-14T09:12:00Z</td>
+              <td><span class="badge badge-pass">CLEAN</span></td>
+            </tr>
+            <tr>
+              <td><strong>CPX-88214</strong></td>
+              <td>Terminal 3</td>
+              <td><span class="tag-event">doc_mismatch</span></td>
+              <td>SWFT</td>
+              <td>2026-08-14T09:45:00Z</td>
+              <td><span class="badge badge-pass">CLEAN</span></td>
+            </tr>
+            <tr>
+              <td><strong>CPX-88215</strong></td>
+              <td>Terminal 3</td>
+              <td><span class="tag-event">missed_pickup</span></td>
+              <td>SWFT</td>
+              <td>2026-08-14T10:03:00Z</td>
+              <td><span class="badge badge-pass">CLEAN</span></td>
+            </tr>
+            <tr style="background: rgba(251, 191, 36, 0.04);">
+              <td><strong>CPX-88216</strong></td>
+              <td>Terminal 3</td>
+              <td><span class="tag-event">doc_mismatch</span></td>
+              <td style="color: var(--accent-red); font-style: italic;">[MISSING]</td>
+              <td>2026-08-14T11:47:00Z</td>
+              <td><span class="badge badge-flagged">FLAGGED</span></td>
+            </tr>
+            <tr>
+              <td><strong>CPX-88217</strong></td>
+              <td>Terminal 3</td>
+              <td><span class="tag-event">carrier_substitution</span></td>
+              <td>RLCX</td>
+              <td>2026-08-15T08:02:00Z</td>
+              <td><span class="badge badge-pass">CLEAN</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Audit Notice Box -->
+      <div class="audit-box">
+        <h4>⚠️ Uncleaned Record Audit Notice: Record CPX-88216</h4>
+        <p>
+          <strong>Reason for Flag:</strong> <code>carrier_code</code> is empty/null in the raw EDI stream.
+        </p>
+        <p>
+          <strong>Operational & Technical Rationale:</strong> In freight logistics, carrier identification is a mandatory foreign key for dispatcher portfolio assignment, contractual SLA evaluation, and rate lookup. We deliberately rejected silent imputation (e.g. inserting 'UNKNOWN' or copying from previous rows). 
+        </p>
+        <div class="audit-meta">
+          Action Required: Fallback join against FreightWorks master shipment payload using shipment reference ID.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Built for Ajaia Technical Project Manager Assessment &bull; Candidate: SivaVignesh L &bull; <a href="https://ajaia.ai" target="_blank">https://ajaia.ai</a>
+    </footer>
+  </div>
+
+</body>
+</html>

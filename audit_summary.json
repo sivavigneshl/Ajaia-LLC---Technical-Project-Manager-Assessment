@@ -1,0 +1,73 @@
+{
+  "total_records": 5,
+  "clean_records_count": 4,
+  "uncleaned_records_count": 1,
+  "event_counts": {
+    "missed_pickup": 2,
+    "doc_mismatch": 2,
+    "carrier_substitution": 1
+  },
+  "normalized_records": [
+    {
+      "exception_id": "CPX-88213",
+      "terminal": "Terminal 3",
+      "event_type": "missed_pickup",
+      "carrier_code": "SWFT",
+      "event_ts": "2026-08-14T09:12:00Z",
+      "is_clean": true,
+      "issues": []
+    },
+    {
+      "exception_id": "CPX-88214",
+      "terminal": "Terminal 3",
+      "event_type": "doc_mismatch",
+      "carrier_code": "SWFT",
+      "event_ts": "2026-08-14T09:45:00Z",
+      "is_clean": true,
+      "issues": []
+    },
+    {
+      "exception_id": "CPX-88215",
+      "terminal": "Terminal 3",
+      "event_type": "missed_pickup",
+      "carrier_code": "SWFT",
+      "event_ts": "2026-08-14T10:03:00Z",
+      "is_clean": true,
+      "issues": []
+    },
+    {
+      "exception_id": "CPX-88216",
+      "terminal": "Terminal 3",
+      "event_type": "doc_mismatch",
+      "carrier_code": "",
+      "event_ts": "2026-08-14T11:47:00Z",
+      "is_clean": false,
+      "issues": [
+        "Missing carrier code (empty in EDI feed)"
+      ]
+    },
+    {
+      "exception_id": "CPX-88217",
+      "terminal": "Terminal 3",
+      "event_type": "carrier_substitution",
+      "carrier_code": "RLCX",
+      "event_ts": "2026-08-15T08:02:00Z",
+      "is_clean": true,
+      "issues": []
+    }
+  ],
+  "uncleaned_records": [
+    {
+      "exception_id": "CPX-88216",
+      "event_type": "doc_mismatch",
+      "raw_values": {
+        "terminal": "Terminal 3",
+        "carrier_code": "",
+        "event_ts": "2026-08-14 11:47:00"
+      },
+      "reasons": [
+        "Missing carrier code (empty in EDI feed)"
+      ]
+    }
+  ]
+}
